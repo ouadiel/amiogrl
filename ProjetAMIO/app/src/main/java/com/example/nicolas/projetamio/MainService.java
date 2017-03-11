@@ -76,10 +76,17 @@ public class MainService extends Service {
 
             timer.cancel();
             timer.purge();
-            
+
         }
 
     }
+   // public interface VariableChangeListener {
+      //   void onVariableChanged(JSONObject data);
+    //}
+
+    //public void setVariableChangeListener(VariableChangeListener variableChangeListener) {
+      //  m = variableChangeListener;
+    //}
 
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
@@ -93,6 +100,7 @@ public class MainService extends Service {
 
                         try {
                             parseJSON(MainActivity.result);
+
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
