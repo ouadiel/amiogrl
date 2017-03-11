@@ -3,6 +3,7 @@ package com.example.nicolas.projetamio;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Message;
@@ -59,13 +60,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         new AsyncLogTask().execute();// AsyncLog
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto","nicolas.rigal@telecomnancy.net", null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
+                        .setAction("close", null).show();
             }
         });
 
