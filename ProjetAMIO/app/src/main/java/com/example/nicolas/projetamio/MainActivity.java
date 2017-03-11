@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Log.d("MainActivity", "Création de l'activité");
 
+
         new AsyncLogTask().execute();// AsyncLog
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -87,17 +88,16 @@ public class MainActivity extends AppCompatActivity {
                 }
                 textView = (TextView) findViewById(R.id.TV4);
                 textView.setText("");
-                if (datalist != null)
-                    if (datalist.size() > 6)
-                        buffer = "";
+                if (datalist != null) {
+                    if (datalist.size() > 6) {
 
 
-                for (int i = datalist.size() - 6; i < datalist.size() - 1; i++)
-                    buffer += datalist.get(datalist.size() - 1).get("label") + "" + datalist.get(datalist.size() - 1).get("value");
-                textView.setText(buffer);
-                //    textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("label")+""+datalist.get(datalist.size()-1).get("value")+"\n");
-                //     textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
-
+                      for (int i = datalist.size() - 5; i < datalist.size(); i++) {
+                           textView.setText(textView.getText() + datalist.get(datalist.size() - i).get("mote") + " " + datalist.get(datalist.size() - i).get("value") + "\n");
+                          //   textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
+                        }
+                    }
+                }
 
                 //   try {
                 //   parseJSON(result);
@@ -219,8 +219,8 @@ public class MainActivity extends AppCompatActivity {
             jsonObject = new JSONObject(r);
             JSONArray data = jsonObject.getJSONArray("data");
 
-            for (int i = 0; i < data.length() - 1; i++) {
-                JSONObject m = data.getJSONObject(i);
+            for (int j = 0; j < data.length() ; j++) {
+                JSONObject m = data.getJSONObject(j);
                 String timestamp = m.getString("timestamp");
                 String label = m.getString("label");
                 String value = m.getString("value");

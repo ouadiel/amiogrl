@@ -36,6 +36,9 @@ public class MainService extends Service {
         Log.d("MainService","Service started");
         timer = new Timer();
         startTimer();
+
+
+
         return START_STICKY;
     }
 
@@ -45,36 +48,37 @@ public class MainService extends Service {
         //initialize the TimerTask's job
         initializeTimerTask();
         //schedule the timer, after the first 10s the TimerTask will run every 20min
-        timer.schedule(timerTask, 10000, 1200000);
+        timer.schedule(timerTask, 1000, 10000);
     }
     public void stopTimertask() {
         if (timer != null) {
+
             timer.cancel();
-            timer = null;
+            timer.purge();
+            
         }
+
     }
 
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
+            @Override
             public void run() {
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
+                Log.d("MainService", "Timer ticked");
+
+
+
                         new AsyncConnectTask().execute(); // remplis le result
-                        try {
-                            this.wait(100); // evite de lancer le parseur JSON avant que le String soit rempli
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+
                         try {
                             parseJSON(MainActivity.result);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        Log.d("MainService", "Data retrieved (Timer ticked)");
+                        Log.d("MainService", "Data retrieved");
                     }
-                };
-            }
+
+
         };
     }
 
@@ -90,18 +94,18 @@ public class MainService extends Service {
                 url = new URL("http://iotlab.telecomnancy.eu/rest/data/1/light1/last");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                return "Error : Malformed URL";
+                Log.d("MainService","Error : Malformed URL");
             }
             HttpURLConnection urlConnection = null;
-            int responseCode;
+            int responseCode = 0;
             try {
                 urlConnection = (HttpURLConnection) url.openConnection();
                 responseCode = urlConnection.getResponseCode();
             } catch (IOException e) {
                 e.printStackTrace();
-                return "Error : Connection failed";
+                Log.d("MainService", "Error : Connection failed");
             }
-            Log.d("MainActivity-AsyncCo", "HTML Code = " + responseCode);
+            Log.d("MainService", "HTML Code = " + responseCode);
             if (responseCode != 200) {
                 Context context = getApplicationContext();
                 CharSequence text = "HTML response code = " + responseCode;
@@ -120,12 +124,13 @@ public class MainService extends Service {
                 in.close();
             } catch (IOException e) {
                 e.printStackTrace();
-                return "Error : Reading failed";
+                Log.d("MainService","Error : Reading failed");
             } finally {
                 urlConnection.disconnect();
-                return "Done";
+                Log.d("MainService", "Done");
             }
-        }
+
+        return null;}
     }
 
     protected void parseJSON(String r) throws IOException {
@@ -133,8 +138,8 @@ public class MainService extends Service {
             MainActivity.jsonObject = new JSONObject(r);
             JSONArray data =MainActivity.jsonObject.getJSONArray("data");
 
-            for (int i=0;i<data.length()-1;i++) {
-                JSONObject m = data.getJSONObject(i);
+            for (int j=0;j<data.length();j++) {
+                JSONObject m = data.getJSONObject(j);
                 String timestamp = m.getString("timestamp");
                 String label = m.getString("label");
                 String value = m.getString("value");
@@ -167,6 +172,10 @@ public class MainService extends Service {
         super.onDestroy();
         //stop the timer, if it's not already null
         stopTimertask();
+
+        timer.cancel();
+        timer.purge();
+
         Log.d("MainService","Timer destroyed");
         Log.d("MainService","Service destroyed");
     }
