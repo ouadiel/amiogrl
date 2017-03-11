@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     ToggleButton button;
     CheckBox checkBox;
     String result = null;
+    InputStream in = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +66,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("MainActivity", "Envoie de la requete au WebService");
-                new AsyncConnectTask().execute();
-                parseJSON();
+                new AsyncConnectTask().execute(); // rempli le result
+                if (result!=null && !result.isEmpty()) {
+                    try {
+                        parseJSON(in);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
         button = (ToggleButton) findViewById(R.id.Btn1);
@@ -149,20 +156,13 @@ public class MainActivity extends AppCompatActivity {
             }
             try {
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                if (in != null) {
-                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-                    String line = "";
-                    while ((line = bufferedReader.readLine()) != null)
-                        result += line;
-                }
-                in.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 return "Error : Reading failed";
             } finally {
                 urlConnection.disconnect();
+                return "Done";
             }
-            return result;
         }
     }
 
