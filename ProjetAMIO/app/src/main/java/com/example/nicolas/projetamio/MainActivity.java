@@ -23,6 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     ToggleButton button;
     CheckBox checkBox;
     String result = null;
-    InputStream in = null;
+    JSONObject jsonObject = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,18 +64,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         Button button1 = (Button) findViewById(R.id.GV1);
         button1.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("MainActivity", "Envoie de la requete au WebService");
-                new AsyncConnectTask().execute(); // rempli le result
-                if (result!=null && !result.isEmpty()) {
-                    try {
-                        parseJSON(in);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                Log.d("MainActivity", "Envoi de la requete au WebService");
+                new AsyncConnectTask().execute(); // remplis le result
+                try {
+                    parseJSON(result);
+                    textView = (TextView) findViewById(R.id.TV4);
+                    textView.setText(jsonObject.getString("value"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -131,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Void... params) {
             URL url = null;
+            result = null;
             try {
                 url = new URL("http://iotlab.telecomnancy.eu/rest/data/1/light1/last");
             } catch (MalformedURLException e) {
@@ -156,6 +163,13 @@ public class MainActivity extends AppCompatActivity {
             }
             try {
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                if (in != null) {
+                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
+                    String line = "";
+                    while ((line = bufferedReader.readLine()) != null)
+                        result += line;
+                }
+                in.close();
             } catch (IOException e) {
                 e.printStackTrace();
                 return "Error : Reading failed";
@@ -166,88 +180,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private List<Message> parseJSON(InputStream in) throws IOException {
-        JsonReader reader = null;
+    private void parseJSON(String r) throws IOException {
         try {
-            reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
+            jsonObject = new JSONObject(r);
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-        try {
-            return readMessagesArray(reader);
-        } finally {
-            try {
-                reader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
-    public List<Message> readMessagesArray(JsonReader reader) throws IOException {
-        List<Message> messages = new ArrayList<Message>();
-        reader.beginArray();
-        while (reader.hasNext()) {
-            messages.add(readMessage(reader));
-        }
-        reader.endArray();
-        return messages;
-    }
-
-    public Message readMessage(JsonReader reader) throws IOException {
-        long id = -1;
-        String text = null;
-        User user = null;
-        List<Double> geo = null;
-
-        reader.beginObject();
-        while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("id")) {
-                id = reader.nextLong();
-            } else if (name.equals("text")) {
-                text = reader.nextString();
-            } else if (name.equals("geo") && reader.peek() != JsonToken.NULL) {
-                geo = readDoublesArray(reader);
-            } else if (name.equals("user")) {
-                user = readUser(reader);
-            } else {
-                reader.skipValue();
-            }
-        }
-        reader.endObject();
-        return new Message(id, text, user, geo);
-    }
-
-    public List<Double> readDoublesArray(JsonReader reader) throws IOException {
-        List<Double> doubles = new ArrayList<Double>();
-
-        reader.beginArray();
-        while (reader.hasNext()) {
-            doubles.add(reader.nextDouble());
-        }
-        reader.endArray();
-        return doubles;
-    }
-
-    public User readUser(JsonReader reader) throws IOException {
-        String username = null;
-        int followersCount = -1;
-
-        reader.beginObject();
-        while (reader.hasNext()) {
-            String name = reader.nextName();
-            if (name.equals("name")) {
-                username = reader.nextString();
-            } else if (name.equals("followers_count")) {
-                followersCount = reader.nextInt();
-            } else {
-                reader.skipValue();
-            }
-        }
-        reader.endObject();
-        return new User(username, followersCount);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
