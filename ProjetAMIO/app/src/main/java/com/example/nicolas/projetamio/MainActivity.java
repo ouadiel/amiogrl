@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,14 +37,17 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     TextView textView;
     ToggleButton button;
     CheckBox checkBox;
-    String result = null;
-    JSONObject jsonObject = null;
+    static String result = "";
+    static JSONObject jsonObject = null;
+    static ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
+    String buffer = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +75,39 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("MainActivity", "Envoi de la requete au WebService");
                 new AsyncConnectTask().execute(); // remplis le result
+                //try {
+                //    this.wait(100); // evite de lancer le parseur JSON avant que le String soit rempli
+                // } catch (InterruptedException e) {
+                //   e.printStackTrace();
+                //}
                 try {
                     parseJSON(result);
-                    textView = (TextView) findViewById(R.id.TV4);
-                    textView.setText(jsonObject.getString("value"));
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+                textView = (TextView) findViewById(R.id.TV4);
+                textView.setText("");
+                if (datalist != null)
+                    if (datalist.size() > 6)
+                        buffer = "";
+
+
+                for (int i = datalist.size() - 6; i < datalist.size() - 1; i++)
+                    buffer += datalist.get(datalist.size() - 1).get("label") + "" + datalist.get(datalist.size() - 1).get("value");
+                textView.setText(buffer);
+                //    textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("label")+""+datalist.get(datalist.size()-1).get("value")+"\n");
+                //     textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
+
+
+                //   try {
+                //   parseJSON(result);
+                // textView = (TextView) findViewById(R.id.TV4);
+                //  textView.setText(jsonObject.getString("value"));
+                //  } catch (IOException e) {
+                //    e.printStackTrace();
+                //} catch (JSONException e) {
+                //    e.printStackTrace();
+                //  }
             }
         });
         button = (ToggleButton) findViewById(R.id.Btn1);
@@ -101,7 +129,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // CheckBox du Start at boot
         checkBox = (CheckBox) findViewById(R.id.startAtBootChkb);
+        SharedPreferences sharedPref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE); // Accede aux sharedprefs
+        Boolean bool = sharedPref.getBoolean("startAtBoot", false);
+        if (bool == true) {
+            checkBox.setChecked(true); // syncronise l'etat du Checkbox avec les prefs actuelles
+        }
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -137,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(Void... params) {
             URL url = null;
-            result = null;
+            result = "";
             try {
                 url = new URL("http://iotlab.telecomnancy.eu/rest/data/1/light1/last");
             } catch (MalformedURLException e) {
@@ -180,12 +214,48 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void parseJSON(String r) throws IOException {
+    protected void parseJSON(String r) throws IOException {
         try {
             jsonObject = new JSONObject(r);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            JSONArray data = jsonObject.getJSONArray("data");
+
+            for (int i = 0; i < data.length() - 1; i++) {
+                JSONObject m = data.getJSONObject(i);
+                String timestamp = m.getString("timestamp");
+                String label = m.getString("label");
+                String value = m.getString("value");
+                String mote = m.getString("mote");
+
+
+                HashMap<String, String> datum = new HashMap<>();
+
+                datum.put("timestamp", timestamp);
+                datum.put("label", label);
+
+                datum.put("value", value);
+                datum.put("mote", mote);
+
+
+                datalist.add(datum);
+
+
+            }
+
+        } catch (final JSONException e) {
+            Log.e("jsonparser", "json parsing error: " + e.getMessage());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+
+                    Toast.makeText(getApplicationContext(),
+                            "Json parsing error: " + e.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                }
+            });
+
         }
+
+
     }
 
 
