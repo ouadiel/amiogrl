@@ -12,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         Log.d("MainActivity", "Création de l'activité");
 
 
@@ -78,11 +80,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("MainActivity", "Envoi de la requete au WebService");
                 new AsyncConnectTask().execute(); // remplis le result
-                //try {
-                //    this.wait(100); // evite de lancer le parseur JSON avant que le String soit rempli
-                // } catch (InterruptedException e) {
-                //   e.printStackTrace();
-                //}
                 try {
                     parseJSON(result);
                 } catch (IOException e) {
@@ -96,20 +93,9 @@ public class MainActivity extends AppCompatActivity {
 
                       for (int i = datalist.size() - 5; i < datalist.size(); i++) {
                            textView.setText(textView.getText() + datalist.get(datalist.size() - i).get("mote") + " " + datalist.get(datalist.size() - i).get("value") + "\n");
-                          //   textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
                         }
                     }
                 }
-
-                //   try {
-                //   parseJSON(result);
-                // textView = (TextView) findViewById(R.id.TV4);
-                //  textView.setText(jsonObject.getString("value"));
-                //  } catch (IOException e) {
-                //    e.printStackTrace();
-                //} catch (JSONException e) {
-                //    e.printStackTrace();
-                //  }
             }
         });
         button = (ToggleButton) findViewById(R.id.Btn1);
@@ -158,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
 
     private class AsyncLogTask extends AsyncTask<Void, Void, Integer> {
         @Override
@@ -280,13 +267,13 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                Intent setIntent = new Intent(Settings.class);
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 }
