@@ -6,25 +6,31 @@
         android:inputType="textEmailAddress"
         android:summary="Please provide your email" />
     <EditTextPreference
-        android:title="Time week start"
+        android:title="Semaine - Plage horaire debut Notification"
         android:key="timeWeekStart"
         android:inputType="time"
         android:summary="Please select time"
         android:numeric="integer" />
     <EditTextPreference
-        android:title="Time week start"
+        android:title="Semaine - Plage horaire fin Notification et debut email"
         android:key="timeWeekEnd"
         android:inputType="time"
         android:summary="Please select time"
         android:numeric="integer" />
     <EditTextPreference
-        android:title="Time week start"
+        android:title="Semaine - Plage horaire fin email"
+        android:key="timeWEEnd"
+        android:summary="Please select time"
+        android:inputType="time"
+        android:numeric="integer" />
+    <EditTextPreference
+        android:title="Week-end - Plage horaire debut - email"
         android:key="timeWEStart"
         android:inputType="time"
         android:summary="Please select time"
         android:numeric="integer" />
     <EditTextPreference
-        android:title="Time week start"
+        android:title="Week-end - Plage horaire fin - email"
         android:key="timeWEEnd"
         android:summary="Please select time"
         android:inputType="time"
