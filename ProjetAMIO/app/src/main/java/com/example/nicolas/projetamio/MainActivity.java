@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int RESULT_SETTINGS = 1;
+    String prefEmail = "";
     TextView textView;
     ToggleButton button;
     CheckBox checkBox;
@@ -56,18 +59,23 @@ public class MainActivity extends AppCompatActivity {
 
 
         new AsyncLogTask().execute();// AsyncLog
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto","nicolas.rigal@telecomnancy.net", null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
-        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+//                "mailto",prefEmail, null));
+//        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
+//        emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
+//        startActivity(Intent.createChooser(emailIntent, "Send email..."));
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
-                        .setAction("close", null).show();
+//                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
+//                        .setAction("close", null).show();
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto",prefEmail, null));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
+                startActivity(Intent.createChooser(emailIntent, "Send email..."));
             }
         });
 
@@ -285,12 +293,45 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, Settings.class);
-                startActivity(settingsIntent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+                startActivityForResult(settingsIntent, RESULT_SETTINGS);
+                break;
+        }
+        return true;
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("settings","dans le onactivity");
+
+        switch (requestCode) {
+            case RESULT_SETTINGS:
+                Log.d("settings","dans le switch");
+                modifyUserSettings();
+                break;
+        }
+
+    }
+
+    private void modifyUserSettings() {
+        Log.d("settings","dans le modify");
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("\n email:"
+        + sharedPrefs.getString("prefEmail","NULL"));
+
+        
+//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+//                "mailto",prefEmail, null));
+//
+//        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+    }
+
+
+//            default:
+//                return super.onOptionsItemSelected(item);
         }
 
 
-    }
-}
+  //  }
+//}
