@@ -78,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 MainService.mNotificationManager.notify(MainService.count_notif, MainService.mBuilder.build()); // send notif
                 Log.d("MainActivity", "Envoi de la requete au WebService");
-                MainService.count_notif ++;
                 new AsyncConnectTask().execute(); // remplis le result
                 //try {
                 //    this.wait(100); // evite de lancer le parseur JSON avant que le String soit rempli
