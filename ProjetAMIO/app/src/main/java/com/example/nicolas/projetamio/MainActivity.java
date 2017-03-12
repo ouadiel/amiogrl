@@ -1,4 +1,4 @@
-package com.example.nicolas.projetamio;
+﻿package com.example.nicolas.projetamio;
 
 
 import android.content.Context;
@@ -12,7 +12,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
+import android.view.MenuInflater;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         Log.d("MainActivity", "Création de l'activité");
 
 
@@ -81,6 +79,11 @@ public class MainActivity extends AppCompatActivity {
                 MainService.mNotificationManager.notify(MainService.count_notif, MainService.mBuilder.build()); // send notif
                 Log.d("MainActivity", "Envoi de la requete au WebService");
                 new AsyncConnectTask().execute(); // remplis le result
+                //try {
+                //    this.wait(100); // evite de lancer le parseur JSON avant que le String soit rempli
+                // } catch (InterruptedException e) {
+                //   e.printStackTrace();
+                //}
                 try {
                     parseJSON(result);
                 } catch (IOException e) {
@@ -94,9 +97,20 @@ public class MainActivity extends AppCompatActivity {
 
                       for (int i = datalist.size() - 5; i < datalist.size(); i++) {
                            textView.setText(textView.getText() + datalist.get(datalist.size() - i).get("mote") + " " + datalist.get(datalist.size() - i).get("value") + "\n");
+                          //   textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
                         }
                     }
                 }
+
+                //   try {
+                //   parseJSON(result);
+                // textView = (TextView) findViewById(R.id.TV4);
+                //  textView.setText(jsonObject.getString("value"));
+                //  } catch (IOException e) {
+                //    e.printStackTrace();
+                //} catch (JSONException e) {
+                //    e.printStackTrace();
+                //  }
             }
         });
         button = (ToggleButton) findViewById(R.id.Btn1);
@@ -145,7 +159,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-
 
     private class AsyncLogTask extends AsyncTask<Void, Void, Integer> {
         @Override
@@ -268,6 +281,7 @@ public class MainActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
         switch (item.getItemId()) {
             case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, Settings.class);
@@ -276,5 +290,7 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return super.onOptionsItemSelected(item);
         }
+
+        return super.onOptionsItemSelected(item);
     }
 }
