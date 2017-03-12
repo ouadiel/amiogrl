@@ -4,35 +4,41 @@
         android:title="Your email"
         android:key="email"
         android:inputType="textEmailAddress"
-        android:summary="Please provide your email" />
+        android:summary="Please provide your email"/>
     <EditTextPreference
-        android:title="Semaine - Plage horaire debut Notification"
-        android:key="timeWeekStart"
+        android:title="Semaine - Plage horaire debut notification"
+        android:key="timeWeekStartNotif"
         android:inputType="time"
-        android:summary="Please select time"
+        android:summary="Attention : Format 'HH:MM:SS'"
+        android:numeric="integer"/>
+    <EditTextPreference
+        android:title="Semaine - Plage horaire fin notification"
+        android:key="timeWeekEndNotif"
+        android:inputType="time"
+        android:summary="Attention : Format 'HH:MM:SS'"
         android:numeric="integer" />
     <EditTextPreference
-        android:title="Semaine - Plage horaire fin Notification et debut email"
-        android:key="timeWeekEnd"
-        android:inputType="time"
-        android:summary="Please select time"
-        android:numeric="integer" />
-    <EditTextPreference
-        android:title="Semaine - Plage horaire fin email"
-        android:key="timeWEEnd"
-        android:summary="Please select time"
+        android:title="Semaine - Plage horaire debut email"
+        android:key="timeWeekStartEmail"
+        android:summary="Attention : Format 'HH:MM:SS'"
         android:inputType="time"
         android:numeric="integer" />
     <EditTextPreference
-        android:title="Week-end - Plage horaire debut - email"
-        android:key="timeWEStart"
+        android:title="Semaine - Plage horaire Fin email"
+        android:key="timeWeekEndEmail"
+        android:summary="Attention : Format 'HH:MM:SS'"
         android:inputType="time"
-        android:summary="Please select time"
         android:numeric="integer" />
     <EditTextPreference
-        android:title="Week-end - Plage horaire fin - email"
-        android:key="timeWEEnd"
-        android:summary="Please select time"
+        android:title="Week-end - Plage horaire debut email"
+        android:key="timeWEStartEmail"
+        android:inputType="time"
+        android:summary="Attention : Format 'HH:MM:SS'"
+        android:numeric="integer" />
+    <EditTextPreference
+        android:title="Week-end - Plage horaire fin email"
+        android:key="timeWEEndEmail"
+        android:summary="Attention : Format 'HH:MM:SS'"
         android:inputType="time"
         android:numeric="integer" />
 
