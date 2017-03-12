@@ -41,32 +41,25 @@ public class MainService extends Service {
     static int count_notif = 1;
     Timer timer;
     TimerTask timerTask;
-    int timerTime = 10000;
     static NotificationCompat.Builder mBuilder;
     static NotificationManager mNotificationManager;
     ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
-    String stringWEFinEmail = "";
-    String stringSemaineDebutNotif = "";
-    String stringSemaineFinNotif = "";
-    String stringWEDebutEmail = "";
-    String stringSemaineDebutEmail="";
-    String stringSemaineFinEmail="";
+    String stringWEFin = "";
+    String stringSemaineDebut = "";
+    String stringSemaineFin = "";
+    String stringWEDebut = "";
     String stringMinuit = "00:00:00";
     Date timeMinuit;
-    Date timeWEFinEmail;
-    Date timeSemaineDebutNotif;
-    Date timeSemaineFinNotif;
-    Date timeWEDebutEmail;
-    Date timeSemaineDebutEmail;
-    Date timeSemaineFinEmail;
+    Date timeWEFin;
+    Date timeSemaineDebut;
+    Date timeSemaineFin;
+    Date timeWEDebut;
     Date currentTime;
-    Calendar calendarSemaineDebutNotif;
-    Calendar calendarSemaineFinNotif;
+    Calendar calendarSemaineDebut;
+    Calendar calendarSemaineFin;
     Calendar calenderMinuit;
-    Calendar calendarWEFinEmail;
-    Calendar calendarWEDebutEmail;
-    Calendar calendarSemaineDebutEmail;
-    Calendar calendarSemaineFinEmail;
+    Calendar calendarWEFin;
+    Calendar calendarWEDebut;
     Calendar calendarNow;
 
     public MainService() {
@@ -76,50 +69,35 @@ public class MainService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("MainService", "Service started");
         try {
-            // TODO : Prendre en compte les parametres (email, horaires et timer)
-            /*
-            Valeurs par défauts
-             */
-            stringSemaineDebutNotif = "19:00:00";
-            stringSemaineFinNotif = "23:00:00";
-            stringSemaineDebutEmail=stringSemaineFinNotif;
-            stringSemaineFinEmail="06:00:00";
-            stringWEDebutEmail =stringSemaineDebutNotif;
-            stringWEFinEmail =stringSemaineFinNotif;
+            // TODO : Prendre en compte les parametres
+            stringWEFin = "06:00:00";
+            stringSemaineDebut = "19:00:00";
+            stringSemaineFin = "23:00:00";
+            stringWEDebut = "23:00:00";
 
-            timeSemaineDebutNotif = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineDebutNotif);
-            calendarSemaineDebutNotif = Calendar.getInstance();
-            calendarSemaineDebutNotif.setTime(timeSemaineDebutNotif);
+            timeSemaineDebut = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineDebut);
+            calendarSemaineDebut = Calendar.getInstance();
+            calendarSemaineDebut.setTime(timeSemaineDebut);
 
-            timeSemaineFinNotif = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineFinNotif);
-            calendarSemaineFinNotif = Calendar.getInstance();
-            calendarSemaineFinNotif.setTime(timeSemaineFinNotif);
-            calendarSemaineFinNotif.add(Calendar.DATE, 1);
-
-            timeSemaineDebutEmail = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineDebutEmail);
-            calendarSemaineDebutEmail = Calendar.getInstance();
-            calendarSemaineDebutEmail.setTime(timeSemaineDebutEmail);
-            calendarSemaineDebutEmail.add(Calendar.DATE,1);
-
-            timeSemaineFinEmail = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineFinEmail);
-            calendarSemaineFinEmail = Calendar.getInstance();
-            calendarSemaineFinEmail.setTime(timeSemaineFinEmail);
-            calendarSemaineFinEmail.add(Calendar.DATE,1);
+            timeSemaineFin = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineFin);
+            calendarSemaineFin = Calendar.getInstance();
+            calendarSemaineFin.setTime(timeSemaineFin);
+            calendarSemaineFin.add(Calendar.DATE, 1);
 
             timeMinuit = new SimpleDateFormat("HH:mm:ss").parse(stringMinuit);
             calenderMinuit = Calendar.getInstance();
             calenderMinuit.setTime(timeMinuit);
             calenderMinuit.add(Calendar.DATE,1);
 
-            timeWEFinEmail = new SimpleDateFormat("HH:mm:ss").parse(stringWEFinEmail);
-            calendarWEFinEmail = Calendar.getInstance();
-            calendarWEFinEmail.setTime(timeWEFinEmail);
-            calendarWEFinEmail.add(Calendar.DATE,1);
+            timeWEFin = new SimpleDateFormat("HH:mm:ss").parse(stringWEFin);
+            calendarWEFin = Calendar.getInstance();
+            calendarWEFin.setTime(timeWEFin);
+            calendarWEFin.add(Calendar.DATE,1);
 
-            timeWEDebutEmail = new SimpleDateFormat("HH:mm:ss").parse(stringWEDebutEmail);
-            calendarWEDebutEmail = Calendar.getInstance();
-            calendarWEDebutEmail.setTime(timeWEFinEmail);
-            calendarWEDebutEmail.add(Calendar.DATE,1);
+            timeWEDebut = new SimpleDateFormat("HH:mm:ss").parse(stringWEDebut);
+            calendarWEDebut = Calendar.getInstance();
+            calendarWEDebut.setTime(timeWEFin);
+            calendarWEDebut.add(Calendar.DATE,1);
 
         } catch (ParseException e) {
             Log.e("MainService", "Error parsing the date parameters, using default params...");
@@ -156,7 +134,7 @@ public class MainService extends Service {
         //initialize the TimerTask's job
         initializeTimerTask();
         //schedule the timer, after the first 10s the TimerTask will run every 20min
-        timer.schedule(timerTask, 1000, timerTime);
+        timer.schedule(timerTask, 1000, 10000);
     }
 
     public void stopTimertask() {
@@ -238,16 +216,33 @@ public class MainService extends Service {
     }
 
     private boolean timeNotif() { // check if time is between 19 and 23h and day is in weekdays.
-            calendarNow = Calendar.getInstance();
-            if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+        try {
+            Calendar calendar1 = Calendar.getInstance();
+            if (calendar1.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar1.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
                 return false;
             }
+            String string1 = "19:00:00";
+            Date time1 = new SimpleDateFormat("HH:mm:ss").parse(string1);
+            calendar1.setTime(time1);
 
-            Date x = calendarNow.getTime();
-            if (x.after(calendarSemaineDebutNotif.getTime()) && x.before(calendarSemaineFinNotif.getTime())) {
+            String string2 = "23:00:00";
+            Date time2 = new SimpleDateFormat("HH:mm:ss").parse(string2);
+            Calendar calendar2 = Calendar.getInstance();
+            calendar2.setTime(time2);
+            calendar2.add(Calendar.DATE, 1);
+
+            Calendar calendar3 = Calendar.getInstance();
+            calendar3.add(Calendar.DATE, 1);
+
+            Date x = calendar3.getTime();
+            if (x.after(calendar1.getTime()) && x.before(calendar2.getTime())) {
                 //checks whether the current time is between 19:00:00 and 23:00:00.
                 return true;
             }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
         return false;
     }
 
@@ -257,27 +252,19 @@ public class MainService extends Service {
             currentTime = calendarNow.getTime();
 
             if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) { // week days
-                if (currentTime.after(calendarSemaineDebutEmail.getTime()) && currentTime.before(calendarSemaineFinEmail.getTime())) {
-                    sendMail("Contenu");
+                if (currentTime.after(calendarSemaineDebut.getTime()) && currentTime.before(calendarSemaineFin.getTime())) {
+                    // envoyer un email
                     return true;
                 }
             }
             else { // weekend
-                if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calenderMinuit.getTime())) ||
-                        (currentTime.after(calenderMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
-                    sendMail("Contenu");
+                if ((currentTime.after(calendarWEDebut.getTime()) && currentTime.before(calenderMinuit.getTime())) ||
+                        (currentTime.after(calenderMinuit.getTime()) && currentTime.before(calendarWEFin.getTime()))) { //checks whether the current time is between 23 and 6
+                    // envoyer un email
                     return true;
                 }
             }
             return false;
-    }
-
-    private void sendMail(String content) {
-        // TODO : utiliser le string global
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","nicolas.rigal@telecomnancy.net", null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, content);
-        startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
 
     /*
