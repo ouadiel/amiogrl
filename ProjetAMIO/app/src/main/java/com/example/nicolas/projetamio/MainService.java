@@ -60,9 +60,9 @@ public class MainService extends Service {
     Date timeSemaineDebutEmail;
     Date timeSemaineFinEmail;
     Date currentTime;
+    Calendar calendarMinuit;
     Calendar calendarSemaineDebutNotif;
     Calendar calendarSemaineFinNotif;
-    Calendar calenderMinuit;
     Calendar calendarWEFinEmail;
     Calendar calendarWEDebutEmail;
     Calendar calendarSemaineDebutEmail;
@@ -107,9 +107,9 @@ public class MainService extends Service {
             calendarSemaineFinEmail.add(Calendar.DATE,1);
 
             timeMinuit = new SimpleDateFormat("HH:mm:ss").parse(stringMinuit);
-            calenderMinuit = Calendar.getInstance();
-            calenderMinuit.setTime(timeMinuit);
-            calenderMinuit.add(Calendar.DATE,1);
+            calendarMinuit = Calendar.getInstance();
+            calendarMinuit.setTime(timeMinuit);
+            calendarMinuit.add(Calendar.DATE,1);
 
             timeWEFinEmail = new SimpleDateFormat("HH:mm:ss").parse(stringWEFinEmail);
             calendarWEFinEmail = Calendar.getInstance();
@@ -238,13 +238,12 @@ public class MainService extends Service {
     }
 
     private boolean timeNotif() { // check if time is between 19 and 23h and day is in weekdays.
-            calendarNow = Calendar.getInstance();
-            if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
-                return false;
-            }
-
-            Date x = calendarNow.getTime();
-            if (x.after(calendarSemaineDebutNotif.getTime()) && x.before(calendarSemaineFinNotif.getTime())) {
+        calendarNow = Calendar.getInstance();
+        if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            return false;
+        }
+        Date x = calendarNow.getTime();
+        if (x.after(calendarSemaineDebutNotif.getTime()) && x.before(calendarSemaineFinNotif.getTime())) {
                 //checks whether the current time is between 19:00:00 and 23:00:00.
                 return true;
             }
@@ -263,15 +262,15 @@ public class MainService extends Service {
                 }
             }
             else { // weekend
-                if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calenderMinuit.getTime())) ||
-                        (currentTime.after(calenderMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
+                if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calendarMinuit.getTime())) ||
+                        (currentTime.after(calendarMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
                     sendMail("Contenu");
                     return true;
                 }
             }
             return false;
     }
-
+    
     private void sendMail(String content) {
         // TODO : utiliser le string global
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","nicolas.rigal@telecomnancy.net", null));
@@ -279,6 +278,7 @@ public class MainService extends Service {
         emailIntent.putExtra(Intent.EXTRA_TEXT, content);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
+
 
     /*
     Connecte a l'URL et retourne les infos en String
