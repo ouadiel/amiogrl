@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:title="Choix du timer"
+        android:key="timerChoice"
+        android:entries="@array/getterFrequency"
+        android:summary="Choisissez la frequence de verification"/>
     <EditTextPreference
         android:title="Your email"
         android:key="prefEmail"
         android:inputType="textEmailAddress"
         android:summary="Please provide your email" />
-    <EditTextPreference
-        android:title="Semaine - Plage horaire debut Notification"
+    <com.example.nicolas.projetamio.TimePreference
         android:key="timeWeekStart"
-        android:inputType="time"
         android:summary="Please select time"
-        android:numeric="integer" />
-    <EditTextPreference
-        android:title="Semaine - Plage horaire fin Notification et debut email"
+        android:title="Semaine - Plage horaire debut Notification"/>
+    <com.example.nicolas.projetamio.TimePreference
         android:key="timeWeekEnd"
-        android:inputType="time"
         android:summary="Please select time"
-        android:numeric="integer" />
-    <EditTextPreference
-        android:title="Semaine - Plage horaire fin email"
-        android:key="timeWEEnd"
-        android:summary="Please select time"
-        android:inputType="time"
-        android:numeric="integer" />
-    <EditTextPreference
+        android:title="Semaine - Plage horaire fin Notification et debut email"/>
+    <com.example.nicolas.projetamio.TimePreference
         android:title="Week-end - Plage horaire debut - email"
         android:key="timeWEStart"
-        android:inputType="time"
-        android:summary="Please select time"
-        android:numeric="integer" />
+        android:summary="Please select time"/>
+    <com.example.nicolas.projetamio.TimePreference
+        android:title="Semaine - Plage horaire fin email"
+        android:key="timeWEEnd"
+        android:summary="Please select time"/>
+    <com.example.nicolas.projetamio.TimePreference
+        android:title="Week-end - Plage horaire debut - email"
+        android:key="timeWEStart"
+        android:summary="Please select time"/>
     <EditTextPreference
         android:title="Week-end - Plage horaire fin - email"
         android:key="timeWEEnd"
         android:summary="Please select time"
         android:inputType="time"
         android:numeric="integer" />
-
 </PreferenceScreen>
