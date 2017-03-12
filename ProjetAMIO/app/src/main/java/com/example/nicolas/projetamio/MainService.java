@@ -25,6 +25,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -32,6 +37,10 @@ import java.util.TimerTask;
 public class MainService extends Service {
     Timer timer;
     TimerTask timerTask;
+    NotificationCompat.Builder mBuilder;
+    NotificationManager mNotificationManager;
+
+
     public MainService() {
     }
 
@@ -40,10 +49,10 @@ public class MainService extends Service {
         Log.d("MainService","Service started");
         timer = new Timer();
         startTimer();
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this);
+        mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.mipmap.ic_launcher);
-        mBuilder.setContentTitle("Kompot");
-        mBuilder.setContentText("Value changed");
+        mBuilder.setContentTitle("Alerte lumiere");
+        mBuilder.setContentText("Une salle est allumée");
 
         Intent resultIntent = new Intent(this, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -53,12 +62,7 @@ public class MainService extends Service {
         stackBuilder.addNextIntent(resultIntent);
         PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
-
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        // notificationID allows you to update the notification later on.
-        mNotificationManager.notify(1, mBuilder.build());
-
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         return START_STICKY;
     }
@@ -100,7 +104,7 @@ public class MainService extends Service {
 
                         try {
                             parseJSON(MainActivity.result);
-
+                            checkChangementBrusque(); // check si une notif doit etre envoyée et l'envoie
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -109,6 +113,72 @@ public class MainService extends Service {
 
 
         };
+    }
+
+    private void checkChangementBrusque() {
+
+        if (MainActivity.datalist.size() > 10) {
+            Float buf1;
+            Float buf2;
+            Boolean[] changes = new Boolean[5];
+            Arrays.fill(changes, false);    // fill changes avec des false
+            String buffer = "";
+
+            for (int i = MainActivity.datalist.size() - 5; i < MainActivity.datalist.size(); i++) {
+                buf1 = Float.parseFloat(MainActivity.datalist.get(MainActivity.datalist.size() - i - 5).get("value")); // check la valeur i-5
+                buf2 = Float.parseFloat(MainActivity.datalist.get(MainActivity.datalist.size() - i).get("value")); // check la valeur i
+                if (Math.abs(buf1 - buf2) > 150) {  // check for changes between state n and n-1
+                    changes[i] = true;
+                }
+            }
+
+            for (int j = 0; j < changes.length; j++) {  // check if one or more changes happened
+                if (changes[j]) {
+                    buffer += MainActivity.datalist.get(MainActivity.datalist.size() - j).get("mote") + ", ";
+                }
+            }
+            if (!buffer.isEmpty()) {    // buffer is not empty so a change has occured
+
+                if (timeOK()) { // check si on est entre 19 et 23h
+                    buffer = buffer.substring(0,buffer.length()-2); // enleve le dernier ", " (2 char)
+                    // modif de la notif pour correspondre et afficher les motes
+                    mBuilder.setContentTitle("Alerte lumiere");
+                    mBuilder.setContentText("Le(s) mote(s) "+buffer+" ont notifies un changement brusque");
+                    mNotificationManager.notify(1, mBuilder.build()); // send notif
+                }
+            }
+        }
+
+    }
+
+    private boolean timeOK() {
+        try {
+            String string1 = "19:00:00";
+            Date time1 = new SimpleDateFormat("HH:mm:ss").parse(string1);
+            Calendar calendar1 = Calendar.getInstance();
+            calendar1.setTime(time1);
+
+            String string2 = "23:00:00";
+            Date time2 = new SimpleDateFormat("HH:mm:ss").parse(string2);
+            Calendar calendar2 = Calendar.getInstance();
+            calendar2.setTime(time2);
+            calendar2.add(Calendar.DATE, 1);
+
+            Calendar calendar3 = Calendar.getInstance();
+            calendar3.add(Calendar.DATE, 1);
+
+            Date x = calendar3.getTime();
+            if (x.after(calendar1.getTime()) && x.before(calendar2.getTime())) {
+                //checks whether the current time is between 19:00:00 and 23:00:00.
+                return true;
+            }
+            else {
+                return false;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     /*
