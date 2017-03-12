@@ -7,6 +7,7 @@ import android.app.Service;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -68,6 +69,13 @@ public class MainService extends Service {
     Calendar calendarSemaineDebutEmail;
     Calendar calendarSemaineFinEmail;
     Calendar calendarNow;
+
+    final String m1 = "Salle 2.10";
+    final String m2 ="Salle 2.08";
+    final String m3 ="Salle 2.09";
+    final String m4="Salle 2.06";
+    final String m5="Salle 2.05 ";
+    String bufferAll = "";
 
     public MainService() {
     }
@@ -190,16 +198,17 @@ public class MainService extends Service {
                 Float buf2;
                 Boolean[] changes = new Boolean[5];
                 Arrays.fill(changes, false);    // fill changes avec des false
-                String buffer = "";
+                String buffer="";
+                bufferAll="";
 
                 for (int i = datalist.size() - 5; i < datalist.size(); i++) {
                     int j = 0;
 
-                    buffer = datalist.get(i - 5).get("value"); // check la valeur i-5
-                    buf1 = Float.parseFloat(buffer);
-                    buffer = datalist.get(i).get("value");
-                    buf2 = Float.parseFloat(buffer); // check la valeur i
-                    buffer = "";
+                    bufferAll = datalist.get(i - 5).get("value"); // check la valeur i-5
+                    buf1 = Float.parseFloat(bufferAll);
+                    bufferAll = datalist.get(i).get("value");
+                    buf2 = Float.parseFloat(bufferAll); // check la valeur i
+                    bufferAll = "";
                     if (Math.abs(buf1 - buf2) > 150) {  // check for changes between state n and n-1
                         changes[j] = true;
                     }
@@ -208,19 +217,37 @@ public class MainService extends Service {
 
                 for (int j = 0; j < changes.length; j++) {  // check if one or more changes happened
                     if (changes[j]) {
-                        buffer += datalist.get(datalist.size() - j).get("mote") + ", ";
+                        buffer = datalist.get(datalist.size() - j).get("mote");
+                        if (buffer.equals("9.138")) {
+                            bufferAll+=m1+", ";
+                        }
+                        else if (buffer.equals("81.77")) {
+                            bufferAll+=m2+", ";
+                        }
+                        else if (buffer.equals("153.111")) {
+                            bufferAll+=m3+", ";
+                        }else if (buffer.equals("53.105")) {
+                            bufferAll+=m4+", ";
+                        }else if (buffer.equals("77.106")) {
+                            bufferAll+=m5+", ";
+                        } else {
+                            Log.e("MainService","CheckChangementBrusque - Mote "+buffer+" non reconnu");
+                            return null;
+                        }
                     }
                 }
-                if (!buffer.isEmpty() && buffer.length() > 2) {    // buffer is not empty so a change has occured
+                if (!bufferAll.isEmpty() && bufferAll.length() > 2) {    // bufferAll is not empty so a change has occured
                     if (timeNotif()) { // check si on est entre 19 et 23h et en semaine
-                        buffer = buffer.substring(0, buffer.length() - 2); // enleve le dernier ", " (2 char)
+                        bufferAll = bufferAll.substring(0, bufferAll.length() - 2); // enleve le dernier ", " (2 char)
                         // modif de la notif pour correspondre et afficher les motes
-                        Log.d("MainService","CheckChgmntBrusque : buffer not empty, changements pour les motes "+ buffer);
+                        Log.d("MainService","CheckChgmntBrusque : bufferAll not empty, changements pour les motes "+ bufferAll+ "et notification");
                         mBuilder.setContentTitle("Alerte lumiere");
-                        mBuilder.setContentText("Le(s) mote(s) " + buffer + " ont notifies un changement brusque");
+                        mBuilder.setContentText("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
                         mNotificationManager.notify(count_notif, mBuilder.build()); // send notif
                         count_notif++;
-
+                    }
+                    else {
+                        timeEmail();
                     }
                 }
             }
@@ -257,14 +284,14 @@ public class MainService extends Service {
 
             if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) { // week days
                 if (currentTime.after(calendarSemaineDebutEmail.getTime()) && currentTime.before(calendarSemaineFinEmail.getTime())) {
-                    sendMail("Contenu");
+                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
                     return true;
                 }
             }
             else { // weekend
                 if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calendarMinuit.getTime())) ||
                         (currentTime.after(calendarMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
-                    sendMail("Contenu");
+                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
                     return true;
                 }
             }
@@ -273,8 +300,12 @@ public class MainService extends Service {
     
     private void sendMail(String content) {
         // TODO : utiliser le string global
+        /*
+        SharedPreferences sharedPref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE); // Accede aux sharedprefs
+        String str = sharedPref.getString("email","test@gmail.com");
+        */
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","nicolas.rigal@telecomnancy.net", null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[LUMIO] Notification Lumieres Ecole");
         emailIntent.putExtra(Intent.EXTRA_TEXT, content);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
