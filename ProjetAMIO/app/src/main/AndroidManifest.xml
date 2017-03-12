@@ -36,8 +36,12 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".PreferenceActivity" />
-        <activity android:name=".Settings"></activity>
+        <activity android:name=".Settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.PREFERENCE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

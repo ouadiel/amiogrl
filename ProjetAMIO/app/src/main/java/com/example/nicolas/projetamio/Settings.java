@@ -9,7 +9,7 @@ public class Settings extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_preference);
+        //setContentView(R.layout.activity_preference);
         //noinspection deprecation
         addPreferencesFromResource(R.xml.preferences);
     }

@@ -1,4 +1,4 @@
-﻿package com.example.nicolas.projetamio;
+package com.example.nicolas.projetamio;
 
 
 import android.content.Context;
@@ -291,6 +291,6 @@ public class MainActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
 
-        return super.onOptionsItemSelected(item);
+
     }
 }
