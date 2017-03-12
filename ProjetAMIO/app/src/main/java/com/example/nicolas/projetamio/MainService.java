@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -38,14 +39,66 @@ public class MainService extends Service {
     TimerTask timerTask;
     NotificationCompat.Builder mBuilder;
     NotificationManager mNotificationManager;
-
+    ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
+    String stringWEFin = "";
+    String stringSemaineDebut = "";
+    String stringSemaineFin = "";
+    String stringWEDebut = "";
+    String stringMinuit = "00:00:00";
+    Date timeMinuit;
+    Date timeWEFin;
+    Date timeSemaineDebut;
+    Date timeSemaineFin;
+    Date timeWEDebut;
+    Date currentTime;
+    Calendar calendarSemaineDebut;
+    Calendar calendarSemaineFin;
+    Calendar calenderMinuit;
+    Calendar calendarWEFin;
+    Calendar calendarWEDebut;
+    Calendar calendarNow;
 
     public MainService() {
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("MainService","Service started");
+        Log.d("MainService", "Service started");
+        try {
+            // TODO : Prendre en compte les parametres
+            stringWEFin = "06:00:00";
+            stringSemaineDebut = "19:00:00";
+            stringSemaineFin = "23:00:00";
+            stringWEDebut = "23:00:00";
+
+            timeSemaineDebut = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineDebut);
+            calendarSemaineDebut = Calendar.getInstance();
+            calendarSemaineDebut.setTime(timeSemaineDebut);
+
+            timeSemaineFin = new SimpleDateFormat("HH:mm:ss").parse(stringSemaineFin);
+            calendarSemaineFin = Calendar.getInstance();
+            calendarSemaineFin.setTime(timeSemaineFin);
+            calendarSemaineFin.add(Calendar.DATE, 1);
+
+            timeMinuit = new SimpleDateFormat("HH:mm:ss").parse(stringMinuit);
+            calenderMinuit = Calendar.getInstance();
+            calenderMinuit.setTime(timeMinuit);
+            calenderMinuit.add(Calendar.DATE,1);
+
+            timeWEFin = new SimpleDateFormat("HH:mm:ss").parse(stringWEFin);
+            calendarWEFin = Calendar.getInstance();
+            calendarWEFin.setTime(timeWEFin);
+            calendarWEFin.add(Calendar.DATE,1);
+
+            timeWEDebut = new SimpleDateFormat("HH:mm:ss").parse(stringWEDebut);
+            calendarWEDebut = Calendar.getInstance();
+            calendarWEDebut.setTime(timeWEFin);
+            calendarWEDebut.add(Calendar.DATE,1);
+
+        } catch (ParseException e) {
+            Log.e("MainService", "Error parsing the date parameters, using default params...");
+            e.printStackTrace();
+        }
         timer = new Timer();
         startTimer();
         mBuilder = new NotificationCompat.Builder(this);
@@ -59,7 +112,7 @@ public class MainService extends Service {
 
         // Adds the Intent that starts the Activity to the top of the stack
         stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         mBuilder.setContentIntent(resultPendingIntent);
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -74,6 +127,7 @@ public class MainService extends Service {
         //schedule the timer, after the first 10s the TimerTask will run every 20min
         timer.schedule(timerTask, 1000, 10000);
     }
+
     public void stopTimertask() {
         if (timer != null) {
 
@@ -83,97 +137,81 @@ public class MainService extends Service {
         }
 
     }
-   // public interface VariableChangeListener {
-      //   void onVariableChanged(JSONObject data);
-    //}
-
-    //public void setVariableChangeListener(VariableChangeListener variableChangeListener) {
-      //  m = variableChangeListener;
-    //}
 
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
             @Override
             public void run() {
                 Log.d("MainService", "Timer ticked");
-
-
-
-                        new AsyncConnectTask().execute(); // remplis le result
-
-                       // try {
-                        //    new ParseJSON().execute(MainActivity.result);
-                          //  new CheckChangementBrusque().execute(); // check si une notif doit etre envoyée et l'envoie
-                        //} catch (IOException e) {
-                          //  e.printStackTrace();
-                       // }
-                        //Log.d("MainService", "Data retrieved");
-                    }
-
-
+                new AsyncConnectTask().execute(); // remplis le result
+            }
         };
     }
 
-    private class CheckChangementBrusque extends AsyncTask<Void,Void,Void> {
+    private class CheckChangementBrusque extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
 
-        if (MainActivity.datalist.size() > 20) {
-            Log.d("MainService","CheckChgmntBrusque : Datalist size > 20, entrée dans le if");
-            Float buf1;
-            Float buf2;
-            Boolean[] changes = new Boolean[5];
-            Arrays.fill(changes, false);    // fill changes avec des false
-            String buffer = "";
+            if (datalist.size() > 20) {
+                Log.d("MainService", "CheckChgmntBrusque : Datalist size > 20, entrée dans le if");
+                Float buf1;
+                Float buf2;
+                Boolean[] changes = new Boolean[5];
+                Arrays.fill(changes, false);    // fill changes avec des false
+                String buffer = "";
 
-            for (int i = MainActivity.datalist.size() - 5; i < MainActivity.datalist.size(); i++) {
-                int j=0;
+                for (int i = datalist.size() - 5; i < datalist.size(); i++) {
+                    int j = 0;
 
-                buffer = MainActivity.datalist.get(i - 5).get("value"); // check la valeur i-5
-                buf1 = Float.parseFloat(buffer);
-                buffer = MainActivity.datalist.get(i).get("value");
-                buf2 = Float.parseFloat(buffer); // check la valeur i
-                buffer="";
-                if (Math.abs(buf1 - buf2) > 150) {  // check for changes between state n and n-1
-                    changes[j] = true;
+                    buffer = datalist.get(i - 5).get("value"); // check la valeur i-5
+                    buf1 = Float.parseFloat(buffer);
+                    buffer = datalist.get(i).get("value");
+                    buf2 = Float.parseFloat(buffer); // check la valeur i
+                    buffer = "";
+                    if (Math.abs(buf1 - buf2) > 150) {  // check for changes between state n and n-1
+                        changes[j] = true;
+                    }
+                    j++;
                 }
-                j++;
+
+                for (int j = 0; j < changes.length; j++) {  // check if one or more changes happened
+                    if (changes[j]) {
+                        buffer += datalist.get(datalist.size() - j).get("mote") + ", ";
+                    }
+                }
+                if (!buffer.isEmpty() && buffer.length() > 2) {    // buffer is not empty so a change has occured
+                    if (timeNotif()) { // check si on est entre 19 et 23h et en semaine
+                        buffer = buffer.substring(0, buffer.length() - 2); // enleve le dernier ", " (2 char)
+                        // modif de la notif pour correspondre et afficher les motes
+                        Log.d("MainService","CheckChgmntBrusque : buffer not empty, changements pour les motes "+ buffer);
+                        mBuilder.setContentTitle("Alerte lumiere");
+                        mBuilder.setContentText("Le(s) mote(s) " + buffer + " ont notifies un changement brusque");
+                        mNotificationManager.notify(1, mBuilder.build()); // send notif
+                    }
+                }
             }
 
-            for (int j = 0; j < changes.length; j++) {  // check if one or more changes happened
-                if (changes[j]) {
-                    buffer += MainActivity.datalist.get(MainActivity.datalist.size() - j).get("mote") + ", ";
-                }
-            }
-            if (!buffer.isEmpty() && buffer.length()>2) {    // buffer is not empty so a change has occured
-                Log.d("MainService","CheckChgmntBrusque : buffer not empty, changements");
-                if (timeOK()) { // check si on est entre 19 et 23h
-                    buffer = buffer.substring(0,buffer.length()-2); // enleve le dernier ", " (2 char)
-                    // modif de la notif pour correspondre et afficher les motes
-                    mBuilder.setContentTitle("Alerte lumiere");
-                    mBuilder.setContentText("Le(s) mote(s) "+buffer+" ont notifies un changement brusque");
-                    mNotificationManager.notify(1, mBuilder.build()); // send notif
-                }
-            }
+
+            return null;
         }
 
-
-        return null;}
-
         @Override
-        protected void onPostExecute (Void v) {
+        protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-            Log.d("MainService","Sortie de CheckChgmntBrusque");
+            Log.d("MainService", "Sortie de CheckChgmntBrusque");
         }
 
     }
 
-    private boolean timeOK() {
+    private boolean timeNotif() { // check if time is between 19 and 23h and day is in weekdays.
         try {
+            Calendar calendar1 = Calendar.getInstance();
+            if (calendar1.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendar1.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+                return false;
+            }
             String string1 = "19:00:00";
             Date time1 = new SimpleDateFormat("HH:mm:ss").parse(string1);
-            Calendar calendar1 = Calendar.getInstance();
             calendar1.setTime(time1);
 
             String string2 = "23:00:00";
@@ -190,13 +228,32 @@ public class MainService extends Service {
                 //checks whether the current time is between 19:00:00 and 23:00:00.
                 return true;
             }
-            else {
-                return false;
-            }
         } catch (ParseException e) {
             e.printStackTrace();
             return false;
         }
+        return false;
+    }
+
+    private boolean timeEmail() { // check if time is between 19 and 23h and day is in weekend OR if time is between 23 and 6h in week.
+            calendarNow = Calendar.getInstance();
+            calendarNow.add(Calendar.DATE, 1);
+            currentTime = calendarNow.getTime();
+
+            if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) { // week days
+                if (currentTime.after(calendarSemaineDebut.getTime()) && currentTime.before(calendarSemaineFin.getTime())) {
+                    // envoyer un email
+                    return true;
+                }
+            }
+            else { // weekend
+                if ((currentTime.after(calendarWEDebut.getTime()) && currentTime.before(calenderMinuit.getTime())) ||
+                        (currentTime.after(calenderMinuit.getTime()) && currentTime.before(calendarWEFin.getTime()))) { //checks whether the current time is between 23 and 6
+                    // envoyer un email
+                    return true;
+                }
+            }
+            return false;
     }
 
     /*
@@ -222,7 +279,7 @@ public class MainService extends Service {
                 url = new URL("http://iotlab.telecomnancy.eu/rest/data/1/light1/last");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                Log.d("MainService","Error : Malformed URL");
+                Log.e("MainService","Error : Malformed URL");
             }
             HttpURLConnection urlConnection = null;
             int responseCode = 0;
@@ -231,7 +288,7 @@ public class MainService extends Service {
                 responseCode = urlConnection.getResponseCode();
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d("MainService", "Error : Connection failed");
+                Log.e("MainService", "Error : Connection failed");
             }
             Log.d("MainService", "HTML Code = " + responseCode);
             if (responseCode != 200) {
@@ -252,7 +309,7 @@ public class MainService extends Service {
                 in.close();
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d("MainService","Error : Reading failed");
+                Log.e("MainService","Error : Reading failed");
             } finally {
                 urlConnection.disconnect();
                 Log.d("MainService", "Done");
@@ -300,8 +357,8 @@ public class MainService extends Service {
                     datum.put("mote", mote);
 
 
-                    MainActivity.datalist.add(datum);
-
+                    datalist.add(datum);
+                    Log.d("MainService", "Datum added to datalist");
 
                 }
 

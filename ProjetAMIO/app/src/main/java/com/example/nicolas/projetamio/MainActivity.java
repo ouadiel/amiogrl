@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     CheckBox checkBox;
     static String result = "";
     static JSONObject jsonObject = null;
-    static ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
+    ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
     String buffer = "";
 
     @Override
