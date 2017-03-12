@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 datalist.add(datum);
-
+                Log.d("MainActivity","Datum added to datalist");
 
             }
 

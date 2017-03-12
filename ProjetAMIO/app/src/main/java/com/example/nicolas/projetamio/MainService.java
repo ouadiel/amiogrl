@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -102,22 +101,26 @@ public class MainService extends Service {
 
                         new AsyncConnectTask().execute(); // remplis le result
 
-                        try {
-                            parseJSON(MainActivity.result);
-                            checkChangementBrusque(); // check si une notif doit etre envoyée et l'envoie
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        Log.d("MainService", "Data retrieved");
+                       // try {
+                        //    new ParseJSON().execute(MainActivity.result);
+                          //  new CheckChangementBrusque().execute(); // check si une notif doit etre envoyée et l'envoie
+                        //} catch (IOException e) {
+                          //  e.printStackTrace();
+                       // }
+                        //Log.d("MainService", "Data retrieved");
                     }
 
 
         };
     }
 
-    private void checkChangementBrusque() {
+    private class CheckChangementBrusque extends AsyncTask<Void,Void,Void> {
 
-        if (MainActivity.datalist.size() > 10) {
+        @Override
+        protected Void doInBackground(Void... params) {
+
+        if (MainActivity.datalist.size() > 20) {
+            Log.d("MainService","CheckChgmntBrusque : Datalist size > 20, entrée dans le if");
             Float buf1;
             Float buf2;
             Boolean[] changes = new Boolean[5];
@@ -125,11 +128,17 @@ public class MainService extends Service {
             String buffer = "";
 
             for (int i = MainActivity.datalist.size() - 5; i < MainActivity.datalist.size(); i++) {
-                buf1 = Float.parseFloat(MainActivity.datalist.get(MainActivity.datalist.size() - i - 5).get("value")); // check la valeur i-5
-                buf2 = Float.parseFloat(MainActivity.datalist.get(MainActivity.datalist.size() - i).get("value")); // check la valeur i
+                int j=0;
+
+                buffer = MainActivity.datalist.get(i - 5).get("value"); // check la valeur i-5
+                buf1 = Float.parseFloat(buffer);
+                buffer = MainActivity.datalist.get(i).get("value");
+                buf2 = Float.parseFloat(buffer); // check la valeur i
+                buffer="";
                 if (Math.abs(buf1 - buf2) > 150) {  // check for changes between state n and n-1
-                    changes[i] = true;
+                    changes[j] = true;
                 }
+                j++;
             }
 
             for (int j = 0; j < changes.length; j++) {  // check if one or more changes happened
@@ -137,8 +146,8 @@ public class MainService extends Service {
                     buffer += MainActivity.datalist.get(MainActivity.datalist.size() - j).get("mote") + ", ";
                 }
             }
-            if (!buffer.isEmpty()) {    // buffer is not empty so a change has occured
-
+            if (!buffer.isEmpty() && buffer.length()>2) {    // buffer is not empty so a change has occured
+                Log.d("MainService","CheckChgmntBrusque : buffer not empty, changements");
                 if (timeOK()) { // check si on est entre 19 et 23h
                     buffer = buffer.substring(0,buffer.length()-2); // enleve le dernier ", " (2 char)
                     // modif de la notif pour correspondre et afficher les motes
@@ -147,6 +156,15 @@ public class MainService extends Service {
                     mNotificationManager.notify(1, mBuilder.build()); // send notif
                 }
             }
+        }
+
+
+        return null;}
+
+        @Override
+        protected void onPostExecute (Void v) {
+            super.onPostExecute(v);
+            Log.d("MainService","Sortie de CheckChgmntBrusque");
         }
 
     }
@@ -184,9 +202,20 @@ public class MainService extends Service {
     /*
     Connecte a l'URL et retourne les infos en String
      */
-    private class AsyncConnectTask extends AsyncTask<Void, Void, String> {
+    private class AsyncConnectTask extends AsyncTask<Void, Void, Void> {
+
         @Override
-        protected String doInBackground(Void... params) {
+        protected void onPostExecute (Void v) {
+            super.onPostExecute(v);
+
+            new ParseJSON().execute(MainActivity.result);
+
+            Log.d("MainService", "Sortie de AsyncConnect");
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
             URL url = null;
             MainActivity.result = "";
             try {
@@ -228,41 +257,59 @@ public class MainService extends Service {
                 urlConnection.disconnect();
                 Log.d("MainService", "Done");
             }
-
-        return null;}
-    }
-
-    protected void parseJSON(String r) throws IOException {
-        try {
-            MainActivity.jsonObject = new JSONObject(r);
-            JSONArray data =MainActivity.jsonObject.getJSONArray("data");
-
-            for (int j=0;j<data.length();j++) {
-                JSONObject m = data.getJSONObject(j);
-                String timestamp = m.getString("timestamp");
-                String label = m.getString("label");
-                String value = m.getString("value");
-                String mote = m.getString("mote");
-
-
-                HashMap<String, String> datum = new HashMap<>();
-
-                datum.put("timestamp", timestamp);
-                datum.put("label", label);
-
-                datum.put("value", value);
-                datum.put("mote", mote);
-
-
-                MainActivity.datalist.add(datum);
-
-
-            }
-
-        } catch (final JSONException e) {
-            Log.e("jsonparser", "json parsing error: " + e.getMessage());
+            return null;
         }
 
+
+
+
+
+    }
+
+    private class ParseJSON extends AsyncTask<String, Void, Void> {
+
+
+        @Override
+        protected void onPostExecute (Void v) {
+            super.onPostExecute(v);
+            new CheckChangementBrusque().execute(); // check si une notif doit etre envoyée et l'envoie
+            Log.d("MainService","Sortie de ParseJSON");
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+            try {
+                MainActivity.jsonObject = new JSONObject(params[0]);
+                JSONArray data = MainActivity.jsonObject.getJSONArray("data");
+
+                for (int j = 0; j < data.length(); j++) {
+                    JSONObject m = data.getJSONObject(j);
+                    String timestamp = m.getString("timestamp");
+                    String label = m.getString("label");
+                    String value = m.getString("value");
+                    String mote = m.getString("mote");
+
+
+                    HashMap<String, String> datum = new HashMap<>();
+
+                    datum.put("timestamp", timestamp);
+                    datum.put("label", label);
+
+                    datum.put("value", value);
+                    datum.put("mote", mote);
+
+
+                    MainActivity.datalist.add(datum);
+
+
+                }
+
+            } catch (final JSONException e) {
+                Log.e("jsonparser", "json parsing error: " + e.getMessage());
+            }
+            return null;
+        }
 
     }
 
