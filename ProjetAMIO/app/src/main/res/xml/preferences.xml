@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference android:title="Your name"
-        android:key="username"
-        android:summary="Please provide your username"></EditTextPreference>
+    <EditTextPreference android:title="Your email"
+        android:key="email"
+        android:inputType="textEmailAddress"
+        android:summary="Please provide your email"></EditTextPreference>
+    <EditTextPreference android:title="Time week start"
+        android:key="timeWeekStart"
+        android:inputType="time"
+        android:summary="Please select time"
+        android:numeric="integer"></EditTextPreference>
+    <EditTextPreference android:title="Time week start"
+        android:key="timeWeekEnd"
+        android:inputType="time"
+        android:summary="Please select time"
+        android:numeric="integer"></EditTextPreference>
+    <EditTextPreference android:title="Time week start"
+        android:key="timeWEStart"
+        android:inputType="time"
+        android:summary="Please select time"
+        android:numeric="integer"></EditTextPreference>
+    <EditTextPreference android:title="Time week start"
+        android:key="timeWEEnd"
+        android:summary="Please select time"
+        android:inputType="time"
+        android:numeric="integer"></EditTextPreference>
+
 </PreferenceScreen>
