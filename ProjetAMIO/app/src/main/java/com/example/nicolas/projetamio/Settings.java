@@ -7,7 +7,7 @@ import android.os.Bundle;
 public class Settings extends PreferenceActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_preference);
         //noinspection deprecation

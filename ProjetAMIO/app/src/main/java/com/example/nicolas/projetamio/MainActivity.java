@@ -7,12 +7,14 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,7 +24,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-import android.view.MenuInflater;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,8 +41,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String PREFS_EMAIL = "MyPrefEmail";
     private static final int RESULT_SETTINGS = 1;
-    String prefEmail = "";
+    String prefEmail = "lumio@gmail.br";
     TextView textView;
     ToggleButton button;
     CheckBox checkBox;
@@ -48,31 +51,35 @@ public class MainActivity extends AppCompatActivity {
     static JSONObject jsonObject = null;
     ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
     String buffer = "";
+    String email= "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+//        SharedPreferences settings = getBaseContext().getSharedPreferences(PREFS_EMAIL,MODE_PRIVATE);
+//        if (settings.contains(PREFS_EMAIL))
+//            String prefEmail = settings.getString(PREFS_EMAIL,0);
+//
+
+
+        modifyUserSettings();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         Log.d("MainActivity", "Création de l'activité");
 
 
         new AsyncLogTask().execute();// AsyncLog
-//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-//                "mailto",prefEmail, null));
-//        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
-//        emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
-//        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
-//                        .setAction("close", null).show();
+//
                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto",prefEmail, null));
+                        "mailto", email, null));
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
                 emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
                 startActivity(Intent.createChooser(emailIntent, "Send email..."));
@@ -103,9 +110,9 @@ public class MainActivity extends AppCompatActivity {
                     if (datalist.size() > 6) {
 
 
-                      for (int i = datalist.size() - 5; i < datalist.size(); i++) {
-                           textView.setText(textView.getText() + datalist.get(datalist.size() - i).get("mote") + " " + datalist.get(datalist.size() - i).get("value") + "\n");
-                          //   textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
+                        for (int i = datalist.size() - 5; i < datalist.size(); i++) {
+                            textView.setText(textView.getText() + datalist.get(datalist.size() - i).get("mote") + " " + datalist.get(datalist.size() - i).get("value") + "\n");
+                            //   textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
                         }
                     }
                 }
@@ -231,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             jsonObject = new JSONObject(r);
             JSONArray data = jsonObject.getJSONArray("data");
 
-            for (int j = 0; j < data.length() ; j++) {
+            for (int j = 0; j < data.length(); j++) {
                 JSONObject m = data.getJSONObject(j);
                 String timestamp = m.getString("timestamp");
                 String label = m.getString("label");
@@ -249,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 datalist.add(datum);
-                Log.d("MainActivity","Datum added to datalist");
+                Log.d("MainActivity", "Datum added to datalist");
 
             }
 
@@ -273,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.settings, menu);
         return true;
     }
 
@@ -291,20 +298,21 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         switch (item.getItemId()) {
-            case R.id.action_settings:
+            case R.id.menu_settings:
                 Intent settingsIntent = new Intent(this, Settings.class);
                 startActivityForResult(settingsIntent, RESULT_SETTINGS);
                 break;
         }
         return true;
     }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("settings","dans le onactivity");
+        Log.d("settings", "dans le onactivity");
 
         switch (requestCode) {
             case RESULT_SETTINGS:
-                Log.d("settings","dans le switch");
+                Log.d("settings", "dans le switch");
                 modifyUserSettings();
                 break;
         }
@@ -312,26 +320,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void modifyUserSettings() {
-        Log.d("settings","dans le modify");
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences sharedPrefs = PreferenceManager
+                .getDefaultSharedPreferences(this);
 
-        StringBuilder builder = new StringBuilder();
+        email = sharedPrefs.getString(prefEmail, "toto");
+  StringBuilder builder = new StringBuilder();
+        builder.append("\n Email:" + email);
 
-        builder.append("\n email:"
-        + sharedPrefs.getString("prefEmail","NULL"));
 
-        
-//        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-//                "mailto",prefEmail, null));
-//
-//        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+        Log.d("settings", "dans le modify");
+
+
     }
+}
 
-
-//            default:
-//                return super.onOptionsItemSelected(item);
-        }
-
-
-  //  }
-//}
