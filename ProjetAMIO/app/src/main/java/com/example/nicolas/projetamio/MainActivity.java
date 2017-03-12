@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         button1.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
+                MainService.mNotificationManager.notify(MainService.count_notif, MainService.mBuilder.build()); // send notif
                 Log.d("MainActivity", "Envoi de la requete au WebService");
                 new AsyncConnectTask().execute(); // remplis le result
                 //try {

@@ -3,6 +3,7 @@
     package="com.example.nicolas.projetamio">
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application>
         <receiver
             android:name="com.example.nicolas.projetamio.MyBootBroadcastReceiver"
