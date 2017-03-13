@@ -139,8 +139,8 @@ public class MainService extends Service {
         mBuilder.setSmallIcon(R.mipmap.ic_launcher);
         mBuilder.setContentTitle("Alerte lumiere");
         mBuilder.setContentText("Une salle est allumée");
-        mBuilder.setVibrate(new long[] { 100,1000,100,1000 });
-        mBuilder.setLights(Color.CYAN, 100, 100);
+        mBuilder.setVibrate(new long[] { 100,500,100,500,100,500 });
+        mBuilder.setLights(Color.CYAN, 300, 100);
         mBuilder.setDefaults(Notification.DEFAULT_SOUND);
 
         mBuilder.setAutoCancel(true);
@@ -284,14 +284,14 @@ public class MainService extends Service {
 
             if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) { // week days
                 if (currentTime.after(calendarSemaineDebutEmail.getTime()) && currentTime.before(calendarSemaineFinEmail.getTime())) {
-                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
+                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifies un changement brusque de luminosite.");
                     return true;
                 }
             }
             else { // weekend
                 if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calendarMinuit.getTime())) ||
                         (currentTime.after(calendarMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
-                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
+                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifies un changement brusque de luminosite.");
                     return true;
                 }
             }

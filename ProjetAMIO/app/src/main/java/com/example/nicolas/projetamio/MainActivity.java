@@ -287,8 +287,8 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
 
                     Toast.makeText(getApplicationContext(),
-                            "Json parsing error: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
+//                            "Json parsing error: " + e.getMessage(),
+                          "Veuillez recliquer dans 3 secondes svp", Toast.LENGTH_LONG).show();
                 }
             });
         }
