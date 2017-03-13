@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
+    static String prefEmail = "";
     TextView textView;
     ToggleButton button;
     CheckBox checkBox;
@@ -72,11 +73,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MainActivity", "Création de l'activité");
         new AsyncConnectTask().execute(); // Connexion au service pour avoir une valeur a traiter
 
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto","nicolas.rigal@telecomnancy.net", null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
-        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+
 
         /*
         Floating action button
@@ -85,8 +82,14 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
-                        .setAction("close", null).show();
+                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                        "mailto",prefEmail, null));
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bug/Aide sur l'application");
+                emailIntent.putExtra(Intent.EXTRA_TEXT, "Bonjour,");
+                startActivity(Intent.createChooser(emailIntent, "Send email..."));
+//                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
+//                        .setAction("close", null).show();
+
             }
         });
 
@@ -297,8 +300,8 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
 
                     Toast.makeText(getApplicationContext(),
-                            "Json parsing error: " + e.getMessage(),
-                            Toast.LENGTH_LONG).show();
+//                            "Json parsing error: " + e.getMessage(),
+                          "Veuillez recliquer dans 3 secondes svp", Toast.LENGTH_LONG).show();
                 }
             });
         }

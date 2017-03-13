@@ -77,7 +77,10 @@ public class MainService extends Service {
     final String m4="Salle 2.06";
     final String m5="Salle 2.05 ";
     String bufferAll = "";
+
     String lastAlert="Pas d'alerte récente \nenregistrée";
+
+    static String prefEmail = "ouadie.lachkar@telecomnancy.net";
 
     public MainService() {
     }
@@ -141,8 +144,8 @@ public class MainService extends Service {
         mBuilder.setSmallIcon(R.mipmap.ic_launcher);
         mBuilder.setContentTitle("Alerte lumiere");
         mBuilder.setContentText("Une salle est allumée");
-        mBuilder.setVibrate(new long[] { 100,1000,100,1000 });
-        mBuilder.setLights(Color.CYAN, 100, 100);
+        mBuilder.setVibrate(new long[] { 100,500,100,500,100,500 });
+        mBuilder.setLights(Color.CYAN, 300, 100);
         mBuilder.setDefaults(Notification.DEFAULT_SOUND);
 
         mBuilder.setAutoCancel(true);
@@ -287,7 +290,7 @@ public class MainService extends Service {
 
             if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) { // week days
                 if (currentTime.after(calendarSemaineDebutEmail.getTime()) && currentTime.before(calendarSemaineFinEmail.getTime())) {
-                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
+                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifies un changement brusque de luminosite.");
                     lastAlertRefresh();
                     return true;
                 }
@@ -295,7 +298,7 @@ public class MainService extends Service {
             else { // weekend
                 if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calendarMinuit.getTime())) ||
                         (currentTime.after(calendarMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
-                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
+                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifies un changement brusque de luminosite.");
                     lastAlertRefresh();
                     return true;
                 }
@@ -315,7 +318,7 @@ public class MainService extends Service {
         SharedPreferences sharedPref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE); // Accede aux sharedprefs
         String str = sharedPref.getString("email","test@gmail.com");
         */
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","nicolas.rigal@telecomnancy.net", null));
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto",prefEmail, null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[LUMIO] Notification Lumieres Ecole");
         emailIntent.putExtra(Intent.EXTRA_TEXT, content);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));

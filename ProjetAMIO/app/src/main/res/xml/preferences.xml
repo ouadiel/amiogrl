@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
         android:title="Your email"
-        android:key="email"
+        android:key="prefEmail"
         android:inputType="textEmailAddress"
         android:summary="Please provide your email"/>
     <EditTextPreference
