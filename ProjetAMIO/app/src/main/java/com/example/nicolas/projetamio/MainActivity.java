@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     static JSONObject jsonObject = null;
     ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
     String allume = "";
+    static String stringLastAlert="Pas d'alerte récente \nenregistrée";
+    static TextView textViewLastA;
 
     final String m1 = "Salle 2.10";
     final String m2 ="Salle 2.08";
@@ -111,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 bufferAll="";
                 String buffer ="";
 
+                // textView associé au get values
                 textView = (TextView) findViewById(R.id.TV4);
                 textView.setText("");
                 if (datalist != null) {
@@ -139,10 +142,12 @@ public class MainActivity extends AppCompatActivity {
                             }else if (buffer.equals("77.106")) {
                                 bufferAll=m5;
                             } else {
-                                Log.e("MainService","CheckChangementBrusque - Mote "+buffer+" non reconnu");
+                                Log.e("MainService", "CheckChangementBrusque - Mote " + buffer + " non reconnu");
                                 return;
                             }
-                          textView.setText(textView.getText() + bufferAll +"\t"+ allume + "\n");
+                            // remplis le TextView pour afficher les values
+                            textView.setText(textView.getText() + bufferAll +"\t"+ allume + "\n");
+                            textView.setTextSize(16);
                       }
                     }
                 }
@@ -170,6 +175,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        /*
+        TextView du Last Alert
+         */
+        textViewLastA = (TextView) findViewById(R.id.TV6);
+        textViewLastA.setText(stringLastAlert);
+
 
         /*
         CheckBox du Start at boot

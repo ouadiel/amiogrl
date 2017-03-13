@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -76,6 +77,7 @@ public class MainService extends Service {
     final String m4="Salle 2.06";
     final String m5="Salle 2.05 ";
     String bufferAll = "";
+    String lastAlert="Pas d'alerte récente \nenregistrée";
 
     public MainService() {
     }
@@ -244,6 +246,7 @@ public class MainService extends Service {
                         mBuilder.setContentTitle("Alerte lumiere");
                         mBuilder.setContentText("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
                         mNotificationManager.notify(count_notif, mBuilder.build()); // send notif
+                        lastAlertRefresh();
                         count_notif++;
                     }
                     else {
@@ -285,6 +288,7 @@ public class MainService extends Service {
             if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) { // week days
                 if (currentTime.after(calendarSemaineDebutEmail.getTime()) && currentTime.before(calendarSemaineFinEmail.getTime())) {
                     sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
+                    lastAlertRefresh();
                     return true;
                 }
             }
@@ -292,10 +296,17 @@ public class MainService extends Service {
                 if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calendarMinuit.getTime())) ||
                         (currentTime.after(calendarMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
                     sendMail("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
+                    lastAlertRefresh();
                     return true;
                 }
             }
             return false;
+    }
+
+    private void lastAlertRefresh() {
+        calendarNow.getInstance();
+        lastAlert=calendarNow.getTime().toString();
+        MainActivity.textViewLastA.setText(lastAlert);
     }
     
     private void sendMail(String content) {
