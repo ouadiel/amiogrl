@@ -4,6 +4,8 @@ package com.example.nicolas.projetamio;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +15,13 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.util.StringBuilderPrinter;
 import android.view.View;
@@ -50,8 +59,19 @@ public class MainActivity extends AppCompatActivity {
     static String result = "";
     static JSONObject jsonObject = null;
     ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
+
     String buffer = "";
     String email= "";
+
+    String allume = "";
+
+    final String m1 = "Salle 2.10";
+    final String m2 ="Salle 2.08";
+    final String m3 ="Salle 2.09";
+    final String m4="Salle 2.06";
+    final String m5="Salle 2.05 ";
+    String bufferAll = "";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,11 +88,22 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         Log.d("MainActivity", "Création de l'activité");
+        new AsyncConnectTask().execute(); // Connexion au service pour avoir une valeur a traiter
 
 
-        new AsyncLogTask().execute();// AsyncLog
 
 
+
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+                "mailto","nicolas.rigal@telecomnancy.net", null));
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
+        emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
+        startActivity(Intent.createChooser(emailIntent, "Send email..."));
+
+
+        /*
+        Floating action button
+         */
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,48 +117,75 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
+        /*
+        Get values button
+         */
         Button button1 = (Button) findViewById(R.id.GV1);
         button1.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainService.mNotificationManager.notify(MainService.count_notif, MainService.mBuilder.build()); // send notif
                 Log.d("MainActivity", "Envoi de la requete au WebService");
                 new AsyncConnectTask().execute(); // remplis le result
-                //try {
-                //    this.wait(100); // evite de lancer le parseur JSON avant que le String soit rempli
-                // } catch (InterruptedException e) {
-                //   e.printStackTrace();
-                //}
+
                 try {
                     parseJSON(result);
                 } catch (IOException e) {
+                    Log.e("MainActivity","Error parsing the JSON File");
                     e.printStackTrace();
                 }
+                bufferAll="";
+                String buffer ="";
+
                 textView = (TextView) findViewById(R.id.TV4);
                 textView.setText("");
                 if (datalist != null) {
                     if (datalist.size() > 6) {
 
 
+
                         for (int i = datalist.size() - 5; i < datalist.size(); i++) {
                             textView.setText(textView.getText() + datalist.get(datalist.size() - i).get("mote") + " " + datalist.get(datalist.size() - i).get("value") + "\n");
                             //   textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
                         }
+
+                        SpannableStringBuilder builder = new SpannableStringBuilder(); // string formatting
+
+                        for (int i = datalist.size() - 5; i < datalist.size(); i++) {
+                          if (Float.parseFloat(datalist.get(datalist.size() - i).get("value"))>250) {
+                              allume="ALLUME";
+                          }
+                          else  {
+                              allume="ETEINT";
+                          }
+                          /*
+                            Lie chaque mote a sa salle
+                           */
+                            buffer = datalist.get(datalist.size() - i).get("mote");
+                            if (buffer.equals("9.138")) {
+                                bufferAll=m1;
+                            }else if (buffer.equals("81.77")) {
+                                bufferAll=m2;
+                            }else if (buffer.equals("153.111")) {
+                                bufferAll=m3;
+                            }else if (buffer.equals("53.105")) {
+                                bufferAll=m4;
+                            }else if (buffer.equals("77.106")) {
+                                bufferAll=m5;
+                            } else {
+                                Log.e("MainService","CheckChangementBrusque - Mote "+buffer+" non reconnu");
+                                return;
+                            }
+                          textView.setText(textView.getText() + bufferAll +"\t"+ allume + "\n");
+                      }
+
                     }
                 }
-
-                //   try {
-                //   parseJSON(result);
-                // textView = (TextView) findViewById(R.id.TV4);
-                //  textView.setText(jsonObject.getString("value"));
-                //  } catch (IOException e) {
-                //    e.printStackTrace();
-                //} catch (JSONException e) {
-                //    e.printStackTrace();
-                //  }
             }
         });
+
+        /*
+        Bouton de lancement du service
+         */
         button = (ToggleButton) findViewById(R.id.Btn1);
         button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -147,7 +205,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // CheckBox du Start at boot
+        /*
+        CheckBox du Start at boot
+         */
         checkBox = (CheckBox) findViewById(R.id.startAtBootChkb);
         SharedPreferences sharedPref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE); // Accede aux sharedprefs
         Boolean bool = sharedPref.getBoolean("startAtBoot", false);
@@ -175,21 +235,13 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private class AsyncLogTask extends AsyncTask<Void, Void, Integer> {
-        @Override
-        protected Integer doInBackground(Void... params) {
-            Log.d("MainActivity", "AsyncLog");
-            return 0;
-        }
-    }
-
     /*
     Connecte a l'URL et retourne les infos en String
      */
     private class AsyncConnectTask extends AsyncTask<Void, Void, String> {
         @Override
         protected String doInBackground(Void... params) {
-            URL url = null;
+            URL url;
             result = "";
             try {
                 url = new URL("http://iotlab.telecomnancy.eu/rest/data/1/light1/last");
@@ -271,9 +323,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                 }
             });
-
         }
-
 
     }
 
