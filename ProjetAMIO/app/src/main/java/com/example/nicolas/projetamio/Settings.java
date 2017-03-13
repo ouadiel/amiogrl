@@ -12,6 +12,7 @@ public class Settings extends PreferenceActivity {
         //setContentView(R.layout.activity_preference);
         //noinspection deprecation
         addPreferencesFromResource(R.xml.preferences);
+
     }
 
 }
