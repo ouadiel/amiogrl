@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
+    static String prefEmail = "";
     TextView textView;
     ToggleButton button;
     CheckBox checkBox;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto","nicolas.rigal@telecomnancy.net", null));
+                        "mailto",prefEmail, null));
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bug/Aide sur l'application");
                 emailIntent.putExtra(Intent.EXTRA_TEXT, "Bonjour,");
                 startActivity(Intent.createChooser(emailIntent, "Send email..."));

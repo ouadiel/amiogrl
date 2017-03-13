@@ -76,6 +76,7 @@ public class MainService extends Service {
     final String m4="Salle 2.06";
     final String m5="Salle 2.05 ";
     String bufferAll = "";
+    static String prefEmail = "ouadie.lachkar@telecomnancy.net";
 
     public MainService() {
     }
@@ -304,7 +305,7 @@ public class MainService extends Service {
         SharedPreferences sharedPref = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE); // Accede aux sharedprefs
         String str = sharedPref.getString("email","test@gmail.com");
         */
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto","nicolas.rigal@telecomnancy.net", null));
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto",prefEmail, null));
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[LUMIO] Notification Lumieres Ecole");
         emailIntent.putExtra(Intent.EXTRA_TEXT, content);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
