@@ -105,25 +105,6 @@ CheckChangementBrusque: Permet de vérifier si une notification doit être envoy
 
 *************************************************************************************
 *
-* Les preférences
-*
-*************************************************************************************
-
-L’utilisateur a l’opportunité de:
-
-	- modifier à sa guise les plages horaires établis par défaut.
-	
-	- Renseigner l’adresse mail sur laquelle il souhaiterait recevoir la notification
-
-
-Pour cette partie du projet, ont été implémentés les éléments suivants:
-
-	- Le layout activity_preference.xml
-	- L’activité Settings
-	- Les traitements des modifications de l’utilisateurs ont été établis dans l’activité MainService.
-
-*************************************************************************************
-*
 * Les difficultés rencontrées
 *
 *************************************************************************************
@@ -132,5 +113,7 @@ Pour cette partie du projet, ont été implémentés les éléments suivants:
 1. La compréhension du fonctionnement du parseJSON nous a pris un peu de temps, plus particulièrement sur la récupération de données corrects.
 
 2. Nous n’avons pas réussi à modifier une variable (PrefEmail) avec le shared Preferences malgré les tutoriels présents des nos cours et ceux présents sur internet.
+
+3. Les préférences ont été implémentées, par contre nous n’arrivons pas à récupérer les modifications renseignées par l’utilisateur en faisant un commit.
 
 3. Nous n’avons pas réussi à arrêter notre timer après le lancement de celui-ci
