@@ -9,10 +9,8 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -23,7 +21,6 @@ import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
-import android.util.StringBuilderPrinter;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,7 +30,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,19 +46,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String PREFS_EMAIL = "MyPrefEmail";
-    private static final int RESULT_SETTINGS = 1;
-    String prefEmail = "lumio@gmail.br";
     TextView textView;
     ToggleButton button;
     CheckBox checkBox;
     static String result = "";
     static JSONObject jsonObject = null;
     ArrayList<HashMap<String, String>> datalist = new ArrayList<>();
-
-    String buffer = "";
-    String email= "";
-
     String allume = "";
 
     final String m1 = "Salle 2.10";
@@ -72,33 +61,15 @@ public class MainActivity extends AppCompatActivity {
     final String m5="Salle 2.05 ";
     String bufferAll = "";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        SharedPreferences settings = getBaseContext().getSharedPreferences(PREFS_EMAIL,MODE_PRIVATE);
-//        if (settings.contains(PREFS_EMAIL))
-//            String prefEmail = settings.getString(PREFS_EMAIL,0);
-//
-
-
-        modifyUserSettings();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         Log.d("MainActivity", "Création de l'activité");
         new AsyncConnectTask().execute(); // Connexion au service pour avoir une valeur a traiter
 
-
-
-
-
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                "mailto","nicolas.rigal@telecomnancy.net", null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
-        emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
-        startActivity(Intent.createChooser(emailIntent, "Send email..."));
 
 
         /*
@@ -108,12 +79,8 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//
-                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-                        "mailto", email, null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "YEA BOIIII");
-                emailIntent.putExtra(Intent.EXTRA_TEXT, "YEA BOYYYYYYYYYYYYYYYYYYYYYY");
-                startActivity(Intent.createChooser(emailIntent, "Send email..."));
+                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
+                        .setAction("close", null).show();
             }
         });
 
@@ -126,7 +93,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.d("MainActivity", "Envoi de la requete au WebService");
                 new AsyncConnectTask().execute(); // remplis le result
-
+                //try {
+                //    this.wait(100); // evite de lancer le parseur JSON avant que le String soit rempli
+                // } catch (InterruptedException e) {
+                //   e.printStackTrace();
+                //}
                 try {
                     parseJSON(result);
                 } catch (IOException e) {
@@ -140,14 +111,6 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText("");
                 if (datalist != null) {
                     if (datalist.size() > 6) {
-
-
-
-                        for (int i = datalist.size() - 5; i < datalist.size(); i++) {
-                            textView.setText(textView.getText() + datalist.get(datalist.size() - i).get("mote") + " " + datalist.get(datalist.size() - i).get("value") + "\n");
-                            //   textView.setText(textView.getText()+datalist.get(datalist.size()-1).get("value")+"\n");
-                        }
-
                         SpannableStringBuilder builder = new SpannableStringBuilder(); // string formatting
 
                         for (int i = datalist.size() - 5; i < datalist.size(); i++) {
@@ -177,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
                             }
                           textView.setText(textView.getText() + bufferAll +"\t"+ allume + "\n");
                       }
-
                     }
                 }
             }
@@ -290,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
             jsonObject = new JSONObject(r);
             JSONArray data = jsonObject.getJSONArray("data");
 
-            for (int j = 0; j < data.length(); j++) {
+            for (int j = 0; j < data.length() ; j++) {
                 JSONObject m = data.getJSONObject(j);
                 String timestamp = m.getString("timestamp");
                 String label = m.getString("label");
@@ -308,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 datalist.add(datum);
-                Log.d("MainActivity", "Datum added to datalist");
+                Log.d("MainActivity","Datum added to datalist");
 
             }
 
@@ -330,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.settings, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
@@ -348,39 +310,14 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         switch (item.getItemId()) {
-            case R.id.menu_settings:
+            case R.id.action_settings:
                 Intent settingsIntent = new Intent(this, Settings.class);
-                startActivityForResult(settingsIntent, RESULT_SETTINGS);
-                break;
+                startActivity(settingsIntent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return true;
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d("settings", "dans le onactivity");
-
-        switch (requestCode) {
-            case RESULT_SETTINGS:
-                Log.d("settings", "dans le switch");
-                modifyUserSettings();
-                break;
-        }
-
-    }
-
-    private void modifyUserSettings() {
-        SharedPreferences sharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(this);
-
-        email = sharedPrefs.getString(prefEmail, "toto");
-  StringBuilder builder = new StringBuilder();
-        builder.append("\n Email:" + email);
-
-
-        Log.d("settings", "dans le modify");
 
 
     }
 }
-
