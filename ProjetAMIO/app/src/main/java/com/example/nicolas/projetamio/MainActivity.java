@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
                         "mailto",prefEmail, null));
-                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bug/Aide sur l'application");
+                emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[LUMIO] Bug/Aide sur l'application");
                 emailIntent.putExtra(Intent.EXTRA_TEXT, "Bonjour,");
                 startActivity(Intent.createChooser(emailIntent, "Send email..."));
 //                Snackbar.make(view, "fais ton action", Snackbar.LENGTH_LONG)
@@ -125,10 +125,10 @@ public class MainActivity extends AppCompatActivity {
 
                         for (int i = datalist.size() - 5; i < datalist.size(); i++) {
                           if (Float.parseFloat(datalist.get(datalist.size() - i).get("value"))>250) {
-                              allume="ALLUME";
+                              allume="ALLUMEE";
                           }
                           else  {
-                              allume="ETEINT";
+                              allume="ETEINTE";
                           }
                           /*
                             Lie chaque mote a sa salle
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Toast.makeText(getApplicationContext(),
 //                            "Json parsing error: " + e.getMessage(),
-                          "Veuillez recliquer dans 3 secondes svp", Toast.LENGTH_LONG).show();
+                          "Veuillez re-cliquer dans 3 secondes svp", Toast.LENGTH_LONG).show();
                 }
             });
         }

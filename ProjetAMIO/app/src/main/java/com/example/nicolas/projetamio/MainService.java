@@ -142,7 +142,7 @@ public class MainService extends Service {
         startTimer();
         mBuilder = new NotificationCompat.Builder(this);
         mBuilder.setSmallIcon(R.mipmap.ic_launcher);
-        mBuilder.setContentTitle("Alerte lumiere");
+        mBuilder.setContentTitle("Lumio");
         mBuilder.setContentText("Une salle est allumée");
         mBuilder.setVibrate(new long[] { 100,500,100,500,100,500 });
         mBuilder.setLights(Color.CYAN, 300, 100);
@@ -246,8 +246,8 @@ public class MainService extends Service {
                         bufferAll = bufferAll.substring(0, bufferAll.length() - 2); // enleve le dernier ", " (2 char)
                         // modif de la notif pour correspondre et afficher les motes
                         Log.d("MainService","CheckChgmntBrusque : bufferAll not empty, changements pour les motes "+ bufferAll+ "et notification");
-                        mBuilder.setContentTitle("Alerte lumiere");
-                        mBuilder.setContentText("Le(s) salle(s) " + bufferAll + " ont notifiees un changement brusque de luminisote.");
+                        mBuilder.setContentTitle("Lumio");
+                        mBuilder.setContentText("La/les salle(s) " + bufferAll + " a/ont notifié(s) un changement brusque de luminosité.");
                         mNotificationManager.notify(count_notif, mBuilder.build()); // send notif
                         lastAlertRefresh();
                         count_notif++;
@@ -290,7 +290,7 @@ public class MainService extends Service {
 
             if (calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || calendarNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) { // week days
                 if (currentTime.after(calendarSemaineDebutEmail.getTime()) && currentTime.before(calendarSemaineFinEmail.getTime())) {
-                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifies un changement brusque de luminosite.");
+                    sendMail("La/les salle(s) " + bufferAll + " a/ont notifié(s) un changement brusque de luminosité.");
                     lastAlertRefresh();
                     return true;
                 }
@@ -298,7 +298,7 @@ public class MainService extends Service {
             else { // weekend
                 if ((currentTime.after(calendarWEDebutEmail.getTime()) && currentTime.before(calendarMinuit.getTime())) ||
                         (currentTime.after(calendarMinuit.getTime()) && currentTime.before(calendarWEFinEmail.getTime()))) { //checks whether the current time is between 23 and 6
-                    sendMail("Le(s) salle(s) " + bufferAll + " ont notifies un changement brusque de luminosite.");
+                    sendMail("La/les salle(s) " + bufferAll + " a/ont notifié(s) un changement brusque de luminosité.");
                     lastAlertRefresh();
                     return true;
                 }
@@ -319,7 +319,7 @@ public class MainService extends Service {
         String str = sharedPref.getString("email","test@gmail.com");
         */
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto",prefEmail, null));
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[LUMIO] Notification Lumieres Ecole");
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, "[LUMIO] Notification Lumières Ecole");
         emailIntent.putExtra(Intent.EXTRA_TEXT, content);
         startActivity(Intent.createChooser(emailIntent, "Send email..."));
     }
